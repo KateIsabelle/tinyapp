@@ -15,9 +15,19 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log("/urls");
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
-})
+});
+
+app.get("/urls/:shortURL", (req, res) => {
+  console.log("/urls/:shortURL");
+  const shortURL = req.params.shortURL; // grab the thing after the colon above
+  console.log("shortURL = ", shortURL);
+  const longURL = urlDatabase[shortURL];
+  const templateVars = { shortURL, longURL };
+  res.render("urls_show", templateVars);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
