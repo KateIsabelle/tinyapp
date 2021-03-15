@@ -40,7 +40,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   let key = generateRandomString();
   urlDatabase[key] = req.body.longURL;
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${key}`);         // Respond with 'Ok' (we will replace this)
 });
 
 app.listen(PORT, () => {
