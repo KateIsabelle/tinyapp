@@ -42,6 +42,8 @@ app.listen(PORT, () => {
 });
 
 function generateRandomString() {
-  return Math.floor(Math.random() * 1000000 + 1);
+  let string = Math.random().toString(36).slice(7);
+  return string;
 }
 
+//console.log(generateRandomString());
