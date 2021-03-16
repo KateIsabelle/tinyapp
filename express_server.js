@@ -1,10 +1,10 @@
 const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 //set the view engine to ejs
 app.set('view engine', 'ejs');
-const PORT = 8080; 
+const PORT = 8080;
 
 
 const urlDatabase = {
@@ -12,10 +12,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-function generateRandomString() {
+const generateRandomString = function() {
   let string = Math.random().toString(36).slice(7);
   return string;
-}
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -45,13 +45,10 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shorty = req.params.shortURL;
-   const longURL = urlDatabase[shorty];
+  const longURL = urlDatabase[shorty];
   res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-//console.log(generateRandomString());
