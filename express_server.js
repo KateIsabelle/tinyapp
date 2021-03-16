@@ -58,11 +58,14 @@ app.post("/urls", (req, res) => {
 });
 
 //tied to delete button in urls_index
+//deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls")
 });
 
+//update operation for editing existing shortened URLs
+//app.post()
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
