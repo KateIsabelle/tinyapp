@@ -4,7 +4,14 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 const PORT = 8080;
+
+//app.get('/', (req,res) => {
+//console.log('Cookies: ' req.cookies)
+//console.log('Signed Cookies: ', req.signedCookies)
+//skip signed cookies
+//})
 
 
 const urlDatabase = {
@@ -55,6 +62,14 @@ app.post("/urls", (req, res) => {
   let shorty = generateRandomString();
   urlDatabase[shorty] = req.body.longURL;
   res.redirect(`/urls/${shorty}`);    
+});
+
+//post request from _header.ejs partial
+//sets a cookie with 'username' key and input value as value
+//then redirects to '/urls'
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect("/urls")
 });
 
 //tied to delete button in urls_index
