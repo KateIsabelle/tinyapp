@@ -65,7 +65,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 //update operation for editing existing shortened URLs
-//app.post()
+//post tied to urls_show Edit form 
+app.post("/urls/:id", (req, res) => {
+  const URLid = req.params.id;
+  const longURL = req.body.newLongURL;
+  urlDatabase[URLid] = longURL;
+  res.redirect('/urls')
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
