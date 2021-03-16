@@ -2,8 +2,8 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-//set the view engine to ejs
 app.set('view engine', 'ejs');
+const cookieParser = require('cookie-parser');
 const PORT = 8080;
 
 
@@ -22,7 +22,7 @@ const generateRandomString = function() {
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
-//
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
