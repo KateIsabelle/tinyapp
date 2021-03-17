@@ -31,12 +31,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    username: req.cookies["username"],
+    urls: urlDatabase 
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
 //for urls ending in a /shortURL, render short and long urls
@@ -45,7 +51,11 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; // grab the thing after the colon above
   const longURL = urlDatabase[shortURL];
-  const templateVars = { shortURL, longURL };
+  const templateVars = { 
+    username: req.cookies["username"],
+    shortURL, 
+    longURL 
+  };
   res.render("urls_show", templateVars);
 });
 
