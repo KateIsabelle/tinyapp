@@ -120,7 +120,6 @@ app.post("/register", (req, res) => {
     password: req.body.password
   }
   users[userId] = userObject;
-  console.log(users);
   //set user_id cookie containing id
   res.cookie("user_id", userId);
 
