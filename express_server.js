@@ -189,7 +189,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const URLid = req.params.id;
   const longURL = req.body.newLongURL;
-  urlDatabase[URLid] = longURL;
+  urlDatabase[URLid].longURL = longURL;
   res.redirect('/urls')
 });
 
