@@ -7,47 +7,58 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 const PORT = 8080;
 
-//app.get('/', (req,res) => {
-//console.log('Cookies: ' req.cookies)
-//console.log('Signed Cookies: ', req.signedCookies)
-//skip signed cookies
-//})
-
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 //helper function
-const generateRandomString = function() {
+const generateRandomString = function () {
   let string = Math.random().toString(36).slice(7);
   return string;
 };
 
-//end points or routes:
+//end points/routes:
 
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { 
-    username: req.cookies["username"],
-    urls: urlDatabase 
+  const userId = req.cookies["user_id"];
+  const templateVars = {
+    //username: req.cookies["username"],
+    user: users[userId],
+    urls: urlDatabase
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
+  const userId = req.cookies["user_id"];
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[userId]
   };
   res.render("urls_new", templateVars);
 });
 
 app.get("/register", (req, res) => {
+  const userId = req.cookies["user_id"];
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[userId]
   };
   res.render("urls_register", templateVars);
 })
@@ -58,10 +69,11 @@ app.get("/register", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; // grab the thing after the colon above
   const longURL = urlDatabase[shortURL];
-  const templateVars = { 
-    username: req.cookies["username"],
-    shortURL, 
-    longURL 
+  const userId = req.cookies["user_id"];
+  const templateVars = {
+    user: users[userId],
+    shortURL,
+    longURL
   };
   res.render("urls_show", templateVars);
 });
@@ -78,7 +90,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   let shorty = generateRandomString();
   urlDatabase[shorty] = req.body.longURL;
-  res.redirect(`/urls/${shorty}`);    
+  res.redirect(`/urls/${shorty}`);
 });
 
 //post request from _header.ejs partial
@@ -95,6 +107,25 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect('/urls');
+});
+
+//endpoint that handles the registration form data
+//from urls_register
+app.post("/register", (req, res) => {
+  //create new user id + object and add to users database
+  const userId = generateRandomString();
+  const userObject = {
+    id: userId,
+    email: req.body.email,
+    password: req.body.password
+  }
+  users[userId] = userObject;
+  console.log(users);
+  //set user_id cookie containing id
+  res.cookie("user_id", userId);
+
+  //redirect user to /urls page
+  res.redirect("/urls");
 });
 
 //tied to delete button in urls_index
