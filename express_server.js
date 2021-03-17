@@ -25,11 +25,20 @@ const users = {
   }
 }
 
-//helper function
+//helper functions
 const generateRandomString = function () {
   let string = Math.random().toString(36).slice(7);
   return string;
 };
+
+const emailLookup = function(email) {
+  for (let userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+  return false;
+}
 
 //end points/routes:
 
@@ -112,6 +121,18 @@ app.post("/logout", (req, res) => {
 //endpoint that handles the registration form data
 //from urls_register
 app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  if (emailLookup(email)) {
+    //console.log("EMAIL EXISTS");
+    res.sendStatus(400);
+    return;
+  }
+  if (!email || !password) {
+    //console.log("Empty email or password")
+    res.sendStatus(400);
+    return;
+  }
   //create new user id + object and add to users database
   const userId = generateRandomString();
   const userObject = {
