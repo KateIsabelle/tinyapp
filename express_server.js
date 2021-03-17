@@ -8,8 +8,8 @@ app.use(cookieParser());
 const PORT = 8080;
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  //b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  //i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
@@ -100,16 +100,23 @@ app.get("/urls/:shortURL", (req, res) => {
 //tied to href anchor in urls_show url short url link
 //upon click, redirects to matching long url
 app.get("/u/:shortURL", (req, res) => {
-  const shorty = req.params.shortURL;
-  const longURL = urlDatabase[shorty];
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
 
-//redirects up to app.get("urls/:shortURL")
+//post handler from urls_new form
+//creates a new short url with random string function
+//updates database object, including userId from user_id cookie
 app.post("/urls", (req, res) => {
-  let shorty = generateRandomString();
-  urlDatabase[shorty] = req.body.longURL;
-  res.redirect(`/urls/${shorty}`);
+  let shortURL = generateRandomString();
+  let userId = req.cookies["user_id"];
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userId: userId
+  }
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //login post handler from login.ejs form
