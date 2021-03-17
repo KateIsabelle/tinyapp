@@ -110,11 +110,26 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shorty}`);
 });
 
-//post request from _header.ejs partial
-//sets a cookie with 'username' key and input value as value
-//then redirects to '/urls'
+//login post handler from login.ejs form
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  const email = req.body.email;
+  const password = req.body.password;
+  const userObj = emailLookup(email);
+  //check if email exists in user database
+  if (!userObj) {
+    console.log("EMAIL NOT FOUND");
+    res.sendStatus(403);
+    return;
+  }
+  //check if password entered matched password on file
+  if (userObj.password !== password) {
+    console.log("WRONG PASSWORD");
+    res.sendStatus(403);
+    return;
+  }
+  //if all is well, set cookie and redirect to /urls
+  console.log("SUCCESS");
+  res.cookie("user_id", userObj.id);
   res.redirect("/urls")
 });
 
