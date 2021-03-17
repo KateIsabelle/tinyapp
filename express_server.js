@@ -72,6 +72,14 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars);
 })
 
+app.get("/login", (req, res) => {
+  const userId = req.cookies["user_id"];
+  const templateVars = {
+    user: users[userId]
+  };
+  res.render("login", templateVars);
+})
+
 //for urls ending in a /shortURL, render short and long urls
 //as key-value pairs inside template variables object
 //and send to be used in urls_show document
