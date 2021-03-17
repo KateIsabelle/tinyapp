@@ -87,7 +87,7 @@ app.get("/login", (req, res) => {
 //and send to be used in urls_show document
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; // grab the thing after the colon above
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   const userId = req.cookies["user_id"];
   const templateVars = {
     user: users[userId],
@@ -101,7 +101,7 @@ app.get("/urls/:shortURL", (req, res) => {
 //upon click, redirects to matching long url
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -180,6 +180,7 @@ app.post("/register", (req, res) => {
 //tied to delete button in urls_index
 //deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
+  //add login check for delete 
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls")
 });
@@ -187,6 +188,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //update operation for editing existing shortened URLs
 //post tied to urls_show Edit form 
 app.post("/urls/:id", (req, res) => {
+  //add conditional login check for edit
   const URLid = req.params.id;
   const longURL = req.body.newLongURL;
   urlDatabase[URLid].longURL = longURL;
