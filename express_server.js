@@ -49,7 +49,6 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies["user_id"];
   const templateVars = {
-    //username: req.cookies["username"],
     user: users[userId],
     urls: urlDatabase
   };
@@ -117,27 +116,24 @@ app.post("/login", (req, res) => {
   const userObj = emailLookup(email);
   //check if email exists in user database
   if (!userObj) {
-    console.log("EMAIL NOT FOUND");
     res.sendStatus(403);
     return;
   }
   //check if password entered matched password on file
   if (userObj.password !== password) {
-    console.log("WRONG PASSWORD");
     res.sendStatus(403);
     return;
   }
   //if all is well, set cookie and redirect to /urls
-  console.log("SUCCESS");
   res.cookie("user_id", userObj.id);
   res.redirect("/urls")
 });
 
 //tied to logout button in _header 
-//clears username cookie
+//clears user_id cookie
 //redirects to '/urls'
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect('/urls');
 });
 
