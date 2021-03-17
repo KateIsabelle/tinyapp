@@ -11,19 +11,19 @@
       </div>
     </div>
     <% if(user){ %>
-      <form method="POST" class="form-inline" action="/logout"">
+      <form method="POST" class="form-inline" action="/logout">
         <div class="form-group mb-2">
           <label style="margin-right: 1em" for="logout" >Logged in as: <%= user.email  %></label>
           <input type="submit" value="Logout" name="logout" class="btn btn-outline-dark">
         </div>
       </form>
     <% } else{ %>  
-      <form method="POST" action="/login" style="margin-right: 1em" class="form-inline">
+      <form method="GET" action="/login" style="margin-right: 1em" class="form-inline">
         <div class="form-group mb-2">
           <input type="submit" value="Login" class="btn btn-primary">
         </div>
       </form>
-      <form method="POST" action="/register" style="margin-right: 1em" class="form-inline">
+      <form method="GET" action="/register" style="margin-right: 1em" class="form-inline">
         <div class="form-group mb-2">
           <input type="submit" value="Register" class="btn btn-secondary btn-sm">
         </div>
