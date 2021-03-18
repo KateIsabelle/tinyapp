@@ -5,6 +5,8 @@ app.set('view engine', 'ejs');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const PORT = 8080;
+//helper functions:
+const { urlsForUser, generateRandomString, getUserByEmail } = require('./helpers')
 
 //middlewears:
 
@@ -35,33 +37,6 @@ const users = {
   //   email: "user2@example.com",
   //   password: "dishwasher-funk"
   // }
-}
-
-//helper functions:
-
-const urlsForUser = function (id, database) {
-  const urls = {};
-  for (let shortURL in database) {
-    if (database[shortURL].userId === id) {
-      urls[shortURL] = database[shortURL];
-    }
-  }
-  return urls;
-}
-
-
-const generateRandomString = function () {
-  let string = Math.random().toString(36).slice(2, 8);
-  return string;
-};
-
-const getUserByEmail = function (email, database) {
-  for (let userId in database) {
-    if (database[userId].email === email) {
-      return database[userId];
-    }
-  }
-  return false;
 }
 
 //end points/routes:
@@ -185,8 +160,6 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  //hash password
-  const hashPass = bcrypt.hashSync(password, 10);
   const userObj = getUserByEmail(email, users);
   //if email does not exist in users database, return 403
   if (!userObj) {
@@ -194,7 +167,7 @@ app.post("/login", (req, res) => {
     return;
   }
   //if hashed password entered doesn't match hashed pass on file
-  if (bcrypt.compareSync(hashPass, userObj.password)) {
+  if (!bcrypt.compareSync(password, userObj.password)) {
     res.status(403).send("Wrong password");
     return;
   }
