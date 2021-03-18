@@ -98,9 +98,13 @@ app.get("/login", (req, res) => {
 //as key-value pairs inside template variables object
 //and send to be used in urls_show document
 app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL; // grab the thing after the colon above
-  const longURL = urlDatabase[shortURL].longURL;
   const userId = req.cookies["user_id"];
+  const shortURL = req.params.shortURL; // grab the thing after the colon above
+  const thisAccountURLs = urlsForUser(userId);
+  let longURL;
+  if (thisAccountURLs[shortURL]) {
+    longURL = thisAccountURLs[shortURL].longURL;
+  }
   const templateVars = {
     user: users[userId],
     shortURL,
