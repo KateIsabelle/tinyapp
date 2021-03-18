@@ -5,29 +5,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+const bcrypt = require('bcrypt');
 const PORT = 8080;
 
 const urlDatabase = {
-  //b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  //i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  //b6UTxQ: { longURL: "https://www.tsn.ca", userId: "aJ48lW" },
+  //i3BoGr: { longURL: "https://www.google.ca", userId: "aJ48lW" }
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
+  // "userRandomID": {
+  //   id: "userRandomID",
+  //   email: "user@example.com",
+  //   password: "purple-monkey-dinosaur"
+  // },
+  // "user2RandomID": {
+  //   id: "user2RandomID",
+  //   email: "user2@example.com",
+  //   password: "dishwasher-funk"
+  // }
 }
 
 //helper functions
 
-const urlsForUser = function(id) {
+const urlsForUser = function (id) {
   const urls = {};
   for (let shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userId === id) {
@@ -43,7 +44,7 @@ const generateRandomString = function () {
   return string;
 };
 
-const emailLookup = function(email) {
+const emailLookup = function (email) {
   for (let userId in users) {
     if (users[userId].email === email) {
       return users[userId];
@@ -53,6 +54,14 @@ const emailLookup = function(email) {
 }
 
 //end points/routes:
+
+app.get('/urls.json', (req, res) => {
+  res.json(urlDatabase);
+});
+
+app.get('/users.json', (req, res) => {
+  res.json(users);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -138,14 +147,16 @@ app.post("/urls", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  //hash password
+  const hashPass = bcrypt.hashSync(password, 10);
   const userObj = emailLookup(email);
   //check if email exists in user database
   if (!userObj) {
     res.sendStatus(403);
     return;
   }
-  //check if password entered matched password on file
-  if (userObj.password !== password) {
+  //check if hashed password entered matched hashed pass on file
+  if (bcrypt.compareSync(hashPass, userObj.password)) {
     res.sendStatus(403);
     return;
   }
@@ -167,13 +178,13 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  //use bcrypt to hash password
+  const hashPass = bcrypt.hashSync(password, 10);
   if (emailLookup(email)) {
-    //console.log("EMAIL EXISTS");
     res.sendStatus(400);
     return;
   }
   if (!email || !password) {
-    //console.log("Empty email or password")
     res.sendStatus(400);
     return;
   }
@@ -181,8 +192,8 @@ app.post("/register", (req, res) => {
   const userId = generateRandomString();
   const userObject = {
     id: userId,
-    email: req.body.email,
-    password: req.body.password
+    email,
+    password: hashPass
   }
   users[userId] = userObject;
   //set user_id cookie containing id
@@ -196,7 +207,9 @@ app.post("/register", (req, res) => {
 //deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   //add login check for delete 
-  delete urlDatabase[req.params.shortURL];
+  if (req.cookies["user_id"]) {
+    delete urlDatabase[req.params.shortURL];
+  }
   res.redirect("/urls")
 });
 
@@ -204,9 +217,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //post tied to urls_show Edit form 
 app.post("/urls/:id", (req, res) => {
   //add conditional login check for edit
-  const URLid = req.params.id;
-  const longURL = req.body.newLongURL;
-  urlDatabase[URLid].longURL = longURL;
+  if (req.cookies["user_id"]) {
+    const URLid = req.params.id;
+    const longURL = req.body.newLongURL;
+    urlDatabase[URLid].longURL = longURL;
+  }
   res.redirect('/urls')
 });
 
