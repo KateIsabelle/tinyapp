@@ -42,7 +42,13 @@ const users = {
 //end points/routes:
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const userId = req.session.user_id;
+  //if user is logged in, redirect to /urls
+  if (userId) {
+    return res.redirect("/urls")
+  }
+  //if not logged in, redirect to login
+  res.redirect('/login')
 });
 
 app.get("/urls", (req, res) => {
@@ -67,6 +73,9 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.session.user_id;
+  if (userId) {
+    return res.redirect("/urls");
+  }
   const templateVars = {
     user: users[userId]
   };
@@ -75,6 +84,9 @@ app.get("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const userId = req.session.user_id;
+  if (userId) {
+    return res.redirect("/urls");
+  }
   const templateVars = {
     user: users[userId]
   };

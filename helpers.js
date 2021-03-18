@@ -21,7 +21,7 @@ const getUserByEmail = function (email, database) {
       return database[userId];
     }
   }
-  return false;
+  return undefined;
 }
 
 module.exports = {
