@@ -26,6 +26,17 @@ const users = {
 }
 
 //helper functions
+
+const urlsForUser = function(id) {
+  const urls = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      urls[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return urls;
+}
+
 const generateRandomString = function () {
   let string = Math.random().toString(36).slice(7);
   return string;
