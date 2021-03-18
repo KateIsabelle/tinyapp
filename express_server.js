@@ -51,7 +51,7 @@ const urlsForUser = function (id) {
 
 
 const generateRandomString = function () {
-  let string = Math.random().toString(36).slice(7);
+  let string = Math.random().toString(36).slice(2, 8);
   return string;
 };
 
@@ -65,14 +65,6 @@ const emailLookup = function (email) {
 }
 
 //end points/routes:
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/users.json', (req, res) => {
-  res.json(users);
-});
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -121,6 +113,11 @@ app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const shortURL = req.params.shortURL; // grab the thing after the colon above
   const thisAccountURLs = urlsForUser(userId);
+  //if :shortURL doesn't match anything in the account URLs
+  //return an error
+  if(!thisAccountURLs[shortURL]) {
+    res.status(400).send("URL not found");
+  }
   let longURL;
   if (thisAccountURLs[shortURL]) {
     longURL = thisAccountURLs[shortURL].longURL;
@@ -143,7 +140,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //post handler from urls_new form
 //creates a new short url with random string function
-//updates database object, including userId from user_id cookie
+//updates database object, includes userId from user_id cookie
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let userId = req.session.user_id;
@@ -154,55 +151,22 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-//login post handler from login.ejs form
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  //hash password
-  const hashPass = bcrypt.hashSync(password, 10);
-  const userObj = emailLookup(email);
-  //if email does not exist in database:
-  console.log(userObj);
-  if (!userObj) {
-    res.sendStatus(403);
-    return;
-  }
-  //if hashed password entered doesn't match hashed pass on file
-  if (bcrypt.compareSync(hashPass, userObj.password)) {
-    res.sendStatus(403);
-    return;
-  }
-  //if all is well, set cookie and redirect to /urls
-  //res.cookie("user_id", userObj.id); 
-  req.session.user_id = userObj.id; //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  res.redirect("/urls")
-});
-
-//tied to logout button in _header 
-//clears user_id cookie
-//redirects to '/urls'
-app.post("/logout", (req, res) => {
-  req.session.user_id = null;
-  res.redirect('/urls');
-});
-
-//endpoint that handles the registration form data
-//from urls_register
+//endpoint for register form data from urls_register
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   //use bcrypt to hash password
   const hashPass = bcrypt.hashSync(password, 10);
-  //if email already exists in our database:
+  //if email already exists in our database, return 400
   if (emailLookup(email)) {
-    res.sendStatus(400);
+    res.status(400).send("Account already exists");
     return;
   }
   if (!email || !password) {
-    res.sendStatus(400);
+    res.status(400).send("Enter email and password");
     return;
   }
-  //create new user id + object and add to users database
+  //if all is well, create new user id + user object, add to users database
   const userId = generateRandomString();
   const userObject = {
     id: userId,
@@ -217,7 +181,36 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-//tied to delete button in urls_index
+//login post handler from login.ejs form
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  //hash password
+  const hashPass = bcrypt.hashSync(password, 10);
+  const userObj = emailLookup(email);
+  //if email does not exist in database, return 403
+  if (!userObj) {
+    res.status(403).send("Email not found");
+    return;
+  }
+  //if hashed password entered doesn't match hashed pass on file
+  if (bcrypt.compareSync(hashPass, userObj.password)) {
+    res.status(403).send("Wrong password");
+    return;
+  }
+  //if all is well, set cookie and redirect user to /urls
+  req.session.user_id = userObj.id;
+  res.redirect("/urls")
+});
+
+//handles logout form in _header
+//clears user_id cookie, & redirects to '/urls'
+app.post("/logout", (req, res) => {
+  req.session.user_id = null;
+  res.redirect('/urls');
+});
+
+//handles delete button form in urls_index
 //deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   //add login check for delete 
@@ -228,7 +221,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 //update operation for editing existing shortened URLs
-//post tied to urls_show Edit form 
+//handles edit button form in urls_show 
 app.post("/urls/:id", (req, res) => {
   //add conditional login check for edit
   if (req.session.user_id) {
