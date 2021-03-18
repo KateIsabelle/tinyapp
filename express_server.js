@@ -2,8 +2,6 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 app.set('view engine', 'ejs');
-// const cookieParser = require('cookie-parser');
-// app.use(cookieParser());
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const PORT = 8080;
@@ -223,7 +221,7 @@ app.post("/register", (req, res) => {
 //deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   //add login check for delete 
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     delete urlDatabase[req.params.shortURL];
   }
   res.redirect("/urls")
@@ -233,7 +231,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //post tied to urls_show Edit form 
 app.post("/urls/:id", (req, res) => {
   //add conditional login check for edit
-  if (req.cookies["user_id"]) {
+  if (req.session.user_id) {
     const URLid = req.params.id;
     const longURL = req.body.newLongURL;
     urlDatabase[URLid].longURL = longURL;
