@@ -30,12 +30,13 @@ const users = {
 const urlsForUser = function(id) {
   const urls = {};
   for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
+    if (urlDatabase[shortURL].userId === id) {
       urls[shortURL] = urlDatabase[shortURL];
     }
   }
   return urls;
 }
+
 
 const generateRandomString = function () {
   let string = Math.random().toString(36).slice(7);
@@ -61,7 +62,7 @@ app.get("/urls", (req, res) => {
   const userId = req.cookies["user_id"];
   const templateVars = {
     user: users[userId],
-    urls: urlDatabase
+    urls: urlsForUser(userId)
   };
   res.render("urls_index", templateVars);
 });
@@ -126,7 +127,6 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userId: userId
   }
-  console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
