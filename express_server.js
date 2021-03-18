@@ -39,11 +39,11 @@ const users = {
 
 //helper functions:
 
-const urlsForUser = function (id) {
+const urlsForUser = function (id, database) {
   const urls = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userId === id) {
-      urls[shortURL] = urlDatabase[shortURL];
+  for (let shortURL in database) {
+    if (database[shortURL].userId === id) {
+      urls[shortURL] = database[shortURL];
     }
   }
   return urls;
@@ -54,15 +54,6 @@ const generateRandomString = function () {
   let string = Math.random().toString(36).slice(2, 8);
   return string;
 };
-
-// const emailLookup = function (email) {
-//   for (let userId in users) {
-//     if (users[userId].email === email) {
-//       return users[userId];
-//     }
-//   }
-//   return false;
-// }
 
 const getUserByEmail = function (email, database) {
   for (let userId in database) {
@@ -83,7 +74,7 @@ app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const templateVars = {
     user: users[userId],
-    urls: urlsForUser(userId)
+    urls: urlsForUser(userId, urlDatabase)
   };
   res.render("urls_index", templateVars);
 });
@@ -121,7 +112,7 @@ app.get("/login", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const shortURL = req.params.shortURL; // grab the thing after the colon above
-  const thisAccountURLs = urlsForUser(userId);
+  const thisAccountURLs = urlsForUser(userId, urlDatabase);
   //if :shortURL doesn't match anything in the account URLs
   //return an error
   if(!thisAccountURLs[shortURL]) {
