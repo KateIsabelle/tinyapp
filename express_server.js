@@ -55,10 +55,19 @@ const generateRandomString = function () {
   return string;
 };
 
-const emailLookup = function (email) {
-  for (let userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
+// const emailLookup = function (email) {
+//   for (let userId in users) {
+//     if (users[userId].email === email) {
+//       return users[userId];
+//     }
+//   }
+//   return false;
+// }
+
+const getUserByEmail = function (email, database) {
+  for (let userId in database) {
+    if (database[userId].email === email) {
+      return database[userId];
     }
   }
   return false;
@@ -158,7 +167,7 @@ app.post("/register", (req, res) => {
   //use bcrypt to hash password
   const hashPass = bcrypt.hashSync(password, 10);
   //if email already exists in our database, return 400
-  if (emailLookup(email)) {
+  if (getUserByEmail(email, users)) {
     res.status(400).send("Account already exists");
     return;
   }
@@ -187,8 +196,8 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   //hash password
   const hashPass = bcrypt.hashSync(password, 10);
-  const userObj = emailLookup(email);
-  //if email does not exist in database, return 403
+  const userObj = getUserByEmail(email, users);
+  //if email does not exist in users database, return 403
   if (!userObj) {
     res.status(403).send("Email not found");
     return;
