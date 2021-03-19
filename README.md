@@ -4,8 +4,8 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](https://github.com/KateIsabelle/tinyapp/blob/master/docs/my-url-page.png?raw=true)
-!["screenshot description"](https://github.com/KateIsabelle/tinyapp/blob/master/docs/urls-new-edit.png?raw=true)
+!["When a user is logged in, the home page displays a list of their personal Tiny URLs, which they can edit and delete with buttons, or add to through the 'Create New URL' link in the header"](https://github.com/KateIsabelle/tinyapp/blob/master/docs/my-url-page.png?raw=true)
+!["When a new Tiny URL is created, or an existing URL is edited: Click the Short URL link to be redirected to the long URL, or Edit to change which long URL the Tiny one points to"](https://github.com/KateIsabelle/tinyapp/blob/master/docs/urls-new-edit.png?raw=true)
 
 ## Dependencies
 
