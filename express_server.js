@@ -206,7 +206,7 @@ app.post("/login", (req, res) => {
 //handles logout form in _header
 //clears user_id cookie, & redirects to '/urls'
 app.post("/logout", (req, res) => {
-  req.session.user_id = null;
+  req.session = null;
   res.redirect('/urls');
 });
 
