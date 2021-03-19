@@ -17,7 +17,7 @@ app.use(
     name: 'session',
     keys: ['key1']
   })
-  );
+);
 
 //database objects:
 
@@ -112,7 +112,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const thisAccountURLs = urlsForUser(userId, urlDatabase);
   //if :shortURL doesn't match anything in the account URLs
   //return an error
-  if(!thisAccountURLs[shortURL]) {
+  if (!thisAccountURLs[shortURL]) {
     res.status(400).send("URL not found");
   }
   let longURL;
