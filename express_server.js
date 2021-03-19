@@ -132,6 +132,11 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
+  //if shortURL doesn't exist, redirect to /urls
+  if (!urlDatabase[shortURL]) {
+    return res.redirect("/urls")
+  }
+  //otherwise, redirect to longURL
   res.redirect(longURL);
 });
 
