@@ -51,6 +51,16 @@ app.get("/", (req, res) => {
   res.redirect('/login')
 });
 
+app.get("/error", (req, res) => {
+  const userId = req.session.user_id;
+  const templateVars = {
+    user: users[userId],
+    urls: urlsForUser(userId, urlDatabase)
+  };
+  res.render("error", templateVars);
+
+})
+
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const templateVars = {
