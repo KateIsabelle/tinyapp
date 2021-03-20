@@ -41,6 +41,7 @@ const users = {
 
 //end points/routes:
 
+
 app.get("/", (req, res) => {
   const userId = req.session.user_id;
   //if user is logged in, redirect to /urls
@@ -51,19 +52,20 @@ app.get("/", (req, res) => {
   res.redirect('/login')
 });
 
-app.get("/error", (req, res) => {
-  const userId = req.session.user_id;
-  const templateVars = {
-    user: users[userId],
-    urls: urlsForUser(userId, urlDatabase)
-  };
-  res.render("error", templateVars);
+// app.get("/error", (req, res) => {
+//   const userId = req.session.user_id;
+//   const templateVars = {
+//     user: users[userId],
+//     urls: urlsForUser(userId, urlDatabase),
+//   };
+//   res.render("error", templateVars);
 
-})
+// })
 
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const templateVars = {
+    errorMsg: null,
     user: users[userId],
     urls: urlsForUser(userId, urlDatabase)
   };
@@ -83,22 +85,24 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.session.user_id;
-  if (userId) {
+  if (users[userId]) {
     return res.redirect("/urls");
   }
   const templateVars = {
-    user: users[userId]
+    errorMsg: null,
+    user: null
   };
   res.render("urls_register", templateVars);
 })
 
 app.get("/login", (req, res) => {
   const userId = req.session.user_id;
-  if (userId) {
+  if (users[userId]) {
     return res.redirect("/urls");
   }
   const templateVars = {
-    user: users[userId]
+    errorMsg: null,
+    user: null
   };
   res.render("login", templateVars);
 })
@@ -110,10 +114,29 @@ app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.user_id;
   const shortURL = req.params.shortURL; // grab the thing after the colon above
   const thisAccountURLs = urlsForUser(userId, urlDatabase);
-  //if :shortURL doesn't match anything in the account URLs
-  //return an error
+  //if user is not logged in, redirect to /urls 
+  if (!users[userId]) {
+    return res.redirect("/urls")
+  }
+  //if :shortURL doesn't match anything in url database 
+  if (!urlDatabase[shortURL]) {
+    const errorMsg = "Oops! Short URL does not exist";
+    const templateVars = {
+      errorMsg,
+      user: users[userId],
+      urls: urlsForUser(userId, urlDatabase)
+    };
+    res.render("urls_index", templateVars);
+  }
+  //if :shortURL doesn't match anything in user's account
   if (!thisAccountURLs[shortURL]) {
-    res.status(400).send("URL not found");
+    const errorMsg = "You can only access short URLs registered to your account";
+    const templateVars = {
+      errorMsg,
+      user: users[userId],
+      urls: urlsForUser(userId, urlDatabase)
+    };
+    res.render("urls_index", templateVars);
   }
   let longURL;
   if (thisAccountURLs[shortURL]) {
@@ -131,11 +154,19 @@ app.get("/urls/:shortURL", (req, res) => {
 //upon click, redirects to matching long url
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
+  const userId = req.session.user_id;
   //if shortURL doesn't exist, redirect to /urls
   if (!urlDatabase[shortURL]) {
-    return res.redirect("/urls")
+    const errorMsg = "Oops! Short URL does not exist.";
+    const templateVars = {
+      errorMsg,
+      user: users[userId],
+      urls: urlsForUser(userId, urlDatabase)
+    };
+    res.render("urls_index", templateVars);
+    //return res.redirect("/urls")
   }
+  const longURL = urlDatabase[shortURL].longURL;
   //otherwise, redirect to longURL
   res.redirect(longURL);
 });
@@ -146,9 +177,14 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();
   let userId = req.session.user_id;
+  let longURL = req.body.longURL;
+  //if long URL does not use http://, add it 
+  if (!longURL.includes("http://" || "https://") ) {
+    longURL = "http://" + longURL
+  } 
   urlDatabase[shortURL] = {
-    longURL: req.body.longURL,
-    userId: userId
+    longURL,
+    userId
   }
   res.redirect(`/urls/${shortURL}`);
 });
@@ -159,13 +195,23 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   //use bcrypt to hash password
   const hashPass = bcrypt.hashSync(password, 10);
-  //if email already exists in our database, return 400
+  //if email already exists in our database, embed error message
   if (getUserByEmail(email, users)) {
-    res.status(400).send("Account already exists");
+    const errorMsg = "You already have an account with this Email."
+    const templateVars = {
+      errorMsg,
+      user: null
+    };
+    res.render("urls_register", templateVars);
     return;
   }
   if (!email || !password) {
-    res.status(400).send("Enter email and password");
+    const errorMsg = "Please fill out both Email and Password fields."
+    const templateVars = {
+      errorMsg,
+      user: null
+    };
+    res.render("urls_register", templateVars);
     return;
   }
   //if all is well, create new user id + user object, add to users database
@@ -188,14 +234,24 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const userObj = getUserByEmail(email, users);
-  //if email does not exist in users database, return 403
+  //if email does not exist in users database, embed error message
   if (!userObj) {
-    res.status(403).send("Email not found");
+    const errorMsg = "Email not found."
+    const templateVars = {
+      errorMsg,
+      user: null
+    };
+    res.render("login", templateVars);
     return;
   }
   //if hashed password entered doesn't match hashed pass on file
   if (!bcrypt.compareSync(password, userObj.password)) {
-    res.status(403).send("Wrong password");
+    const errorMsg = "Wrong Password."
+    const templateVars = {
+      errorMsg,
+      user: null
+    };
+    res.render("login", templateVars);
     return;
   }
   //if all is well, set cookie and redirect user to /urls
@@ -206,7 +262,7 @@ app.post("/login", (req, res) => {
 //handles logout form in _header
 //clears user_id cookie, & redirects to '/urls'
 app.post("/logout", (req, res) => {
-  req.session = null;
+  delete req.session.user_id;
   res.redirect('/urls');
 });
 
@@ -214,7 +270,7 @@ app.post("/logout", (req, res) => {
 //deletes key-value pair from database and redirects to /urls page
 app.post("/urls/:shortURL/delete", (req, res) => {
   //add login check for delete 
-  if (req.session.user_id) {
+  if (users[req.session.user_id]) {
     delete urlDatabase[req.params.shortURL];
   }
   res.redirect("/urls")
@@ -223,16 +279,26 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //update operation for editing existing shortened URLs
 //handles edit button form in urls_show 
 app.post("/urls/:id", (req, res) => {
-  //add conditional login check for edit
-  if (req.session.user_id) {
-    const URLid = req.params.id;
-    const longURL = req.body.newLongURL;
-    urlDatabase[URLid].longURL = longURL;
+  //check if user is logged in before allowing an edit
+  //if not, redirect to /urls
+  if (!users[req.session.user_id]) {
+    return res.redirect('/urls')
   }
+  //if user is logged in:
+  const URLid = req.params.id;
+  let longURL = req.body.newLongURL;
+  //if long url does not start with http://, add it
+  if (!longURL.includes("http://" || "https://") ) {
+    longURL = "http://" + longURL
+  } 
+  urlDatabase[URLid].longURL = longURL;
   res.redirect('/urls')
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+
+

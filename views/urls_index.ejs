@@ -14,6 +14,13 @@
 
   <main style="margin: 1em;">
     <h3>My URLs</h3>
+
+    <p style="color: rgb(230, 77, 77) "><strong>
+      <% if (errorMsg) {%> 
+      <%= errorMsg %>
+      <% } %>
+    </strong></p>
+
     <table class="table">
       <thead>
         <tr>

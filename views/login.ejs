@@ -16,6 +16,12 @@
 
     <main style="margin: 1em;">
       <h3>Log in</h3>
+      <p style="color: rgb(230, 77, 77) "><strong>
+        <% if (errorMsg) {%> 
+        <%= errorMsg %>
+        <% } %>
+      </strong></p>
+      
       <form action="/login" method="POST">
         <div class="form-group">
           <label for="email">Email address</label>
