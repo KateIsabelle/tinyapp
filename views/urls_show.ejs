@@ -9,6 +9,10 @@
 <body>
 
   <%- include('partials/_header') %>
+
+  <!--If a user is logged in, but URL is not registered to their account, display error message with link to their URLs-->
+  <!--else if user is logged in (and URL is registered to their account), display url and edit info/form-->
+  <!--else (if user is not logged in), display error message and prompt user to login or register-->
   <% if(user && !longURL){ %>
     <div class="card text-center">
       <div class="card-header"></div>

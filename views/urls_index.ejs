@@ -15,6 +15,8 @@
   <main style="margin: 1em;">
     <h3>My URLs</h3>
 
+    <!--If an error message is delivered in templateVars from a post handler before render of page,
+    then display that message in red at the top of the page-->
     <p style="color: rgb(230, 77, 77) "><strong>
       <% if (errorMsg) {%> 
       <%= errorMsg %>
@@ -31,6 +33,9 @@
         </tr>
       </thead>
       <tbody>
+        <!--if a user is logged in, loop through the list of their account urls,
+        and display the url info in table-->
+        <!--else, if not logged in, display message to login or register-->
         <% if (user) { %>
           <% for(let url in urls) { %>
             <tr>

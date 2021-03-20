@@ -10,6 +10,8 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <!-- if a user is logged in, show their email and a logout button-->
+    <!-- else, show a login button and register button in header-->
     <% if(user){ %>
       <form method="POST" class="form-inline" action="/logout">
         <div class="form-group mb-2">
